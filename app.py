@@ -16,36 +16,22 @@ st.set_page_config(
 st.markdown("""
 <style>
 body {
-    background-color: #0f0f0f;
+    background: linear-gradient(180deg,#f2f2f4,#e6e7ea);
+    color: #1e1e1e;
 }
 
 .title {
     text-align: center;
-    margin-top: 80px;
+    margin-top: 60px;
 }
 
-.input-box {
-    width: 100%;
-    background: #1f1f1f;
-    border-radius: 30px;
-    padding: 14px;
-    margin-top: 20px;
-    border: 1px solid #333;
-}
-
-button {
-    background: #4CAF50;
-    color: white;
-    border-radius: 25px;
-    padding: 10px 25px;
-    border: none;
-    font-size: 1rem;
-    margin-top: 15px;
-    cursor: pointer;
+.subtitle {
+    color: #555;
+    font-size: 1.1rem;
 }
 
 .chat-user {
-    background: #2b2b2b;
+    background: rgba(0,0,0,0.08);
     padding: 14px;
     border-radius: 16px;
     margin-top: 20px;
@@ -53,42 +39,70 @@ button {
 }
 
 .chat-ai {
-    background: #1f1f1f;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
     padding: 14px;
     border-radius: 16px;
     margin-top: 10px;
 }
+
+.ask-btn {
+    background: #2b2b2b !important;
+    color: white !important;
+    border-radius: 30px !important;
+    padding: 10px 28px !important;
+    border: none;
+    font-size: 1rem;
+}
 </style>
 """, unsafe_allow_html=True)
+
+# ---------------- SIDEBAR ----------------
+with st.sidebar:
+    st.markdown("## 🔐 Setup")
+    api_key = st.text_input(
+        "Enter Gemini API Key",
+        type="password",
+        placeholder="Paste your API key here"
+    )
+
+    location = st.text_input(
+        "Your Location",
+        placeholder="Village / Mandal / District"
+    )
+
+    st.markdown("---")
+    st.caption("AgriShield AI uses location to give relevant insights.")
 
 # ---------------- TITLE ----------------
 st.markdown("""
 <div class="title">
     <h1>🌾 AgriShield AI Assistant</h1>
-    <p>Ask questions about weather, crop prices, and nearby mandis</p>
+    <p class="subtitle">
+        Ask questions about weather, crop prices, and mandi trends
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- INPUTS ----------------
-location = st.text_input(
-    "Enter your location (Village / Mandal / District)",
-    placeholder="e.g. Guntur, Andhra Pradesh"
-)
-
+# ---------------- QUESTION INPUT ----------------
 question = st.text_input(
-    "Ask your question",
-    placeholder="e.g. Will it rain this week? What is today's paddy price?"
+    "",
+    placeholder="Ask your question here…",
 )
 
-ask = st.button("Ask AgriShield")
+ask = st.button("Ask AgriShield", key="ask", help="Submit your question")
 
 # ---------------- VALIDATION ----------------
+if ask and not api_key:
+    st.warning("⚠️ Please enter your API key in the sidebar.")
+    st.stop()
+
 if ask and not location:
-    st.warning("⚠️ Please enter your location before asking a question.")
+    st.warning("⚠️ Please enter your location in the sidebar.")
     st.stop()
 
 # ---------------- AI RESPONSE ----------------
-if ask and location and question:
+if ask and api_key and location and question:
 
     st.markdown(f"<div class='chat-user'>{question}</div>", unsafe_allow_html=True)
 
@@ -102,7 +116,7 @@ if ask and location and question:
         }
 
         response = requests.post(
-            f"{GEMINI_ENDPOINT}?key={st.secrets['GEMINI_API_KEY'] if 'GEMINI_API_KEY' in st.secrets else ''}",
+            f"{GEMINI_ENDPOINT}?key={api_key}",
             headers={"Content-Type": "application/json"},
             json=payload
         )
@@ -111,4 +125,4 @@ if ask and location and question:
         answer = response.json()["candidates"][0]["content"]["parts"][0]["text"]
         st.markdown(f"<div class='chat-ai'>{answer}</div>", unsafe_allow_html=True)
     else:
-        st.error("Unable to fetch response. Please check API key or try again.")
+        st.error("Unable to fetch response. Please check your API key or quota.")
