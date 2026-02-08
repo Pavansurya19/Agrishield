@@ -119,9 +119,9 @@ with st.sidebar:
     st.markdown("## 🔐 Setup")
 
     api_key = st.text_input(
-        "Enter Gemini API Key",
+        "Enter API Key",
         type="password",
-        placeholder="Paste your Gemini API key"
+        placeholder="Paste your API key"
     )
 
     location = st.text_input(
