@@ -136,7 +136,7 @@ if ask and api_key and location and question:
 
     
     else:
-    st.error("❌ Gemini API Error")
-    st.write("Status code:", response.status_code)
-    st.write("Raw response:")
-    st.json(response.json())
+        st.error("❌ Gemini API Error")
+        st.write("Status code:", response.status_code)
+        st.write("Raw response:")
+        st.json(response.json())
