@@ -122,7 +122,7 @@ if ask and api_key and location and question:
         }
 
         response = requests.post(
-            "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1/models/gemini-1.0-flash:generateContent",
             params={"key": api_key},
             headers={"Content-Type": "application/json"},
             json=payload,
