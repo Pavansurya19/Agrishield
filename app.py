@@ -3,13 +3,9 @@ from google import genai
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="Farmer AI Assistant 🌾",
-    page_icon="🌱",
+    page_title="Farmer AI Assistant",
     layout="centered"
 )
-
-st.title("🌾 Farmer AI Assistant")
-st.subheader("Location-based agriculture guidance using AI")
 
 # ---------------- STYLING ----------------
 st.markdown("""
@@ -144,7 +140,7 @@ with st.sidebar:
 # ---------------- TITLE ----------------
 st.markdown("""
 <div class="title">
-    <h1>🌾 AgriShield AI Assistant</h1>
+    <h1>AgriShield AI Assistant</h1>
     <p class="subtitle">
         Ask agriculture questions and get farmer-friendly answers
     </p>
