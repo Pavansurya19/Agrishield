@@ -1,10 +1,8 @@
 import streamlit as st
-import requests
 import time
+import google.generativeai as genai
 
 from prompts import agri_prompt
-from config import GEMINI_ENDPOINT
-
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -60,10 +58,11 @@ body {
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
     st.markdown("## 🔐 Setup")
+
     api_key = st.text_input(
         "Enter Gemini API Key",
         type="password",
-        placeholder="Paste your API key here"
+        placeholder="Paste your Gemini API key"
     )
 
     location = st.text_input(
@@ -72,7 +71,7 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.caption("AgriShield AI uses location to give relevant insights.")
+    st.caption("AgriShield uses your location to give relevant insights.")
 
 # ---------------- TITLE ----------------
 st.markdown("""
@@ -87,56 +86,47 @@ st.markdown("""
 # ---------------- QUESTION INPUT ----------------
 question = st.text_input(
     "",
-    placeholder="Ask your question here…",
+    placeholder="Ask your question here…"
 )
 
-ask = st.button("Ask AgriShield", key="ask", help="Submit your question")
+ask = st.button("Ask AgriShield", key="ask")
 
 # ---------------- VALIDATION ----------------
 if ask and not api_key:
-    st.warning("⚠️ Please enter your API key in the sidebar.")
+    st.warning("⚠️ Please enter your Gemini API key in the sidebar.")
     st.stop()
 
 if ask and not location:
     st.warning("⚠️ Please enter your location in the sidebar.")
     st.stop()
 
-# ---------------- AI RESPONSE ----------------
-# ---------------- AI RESPONSE ----------------
+if ask and not question:
+    st.warning("⚠️ Please enter a question.")
+    st.stop()
+
+# ---------------- AI RESPONSE (FINAL WORKING PART) ----------------
 if ask and api_key and location and question:
 
-    st.markdown(f"<div class='chat-user'>{question}</div>", unsafe_allow_html=True)
+    # Show user message
+    st.markdown(
+        f"<div class='chat-user'>{question}</div>",
+        unsafe_allow_html=True
+    )
 
     with st.spinner("AgriShield is thinking..."):
-        payload = {
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {
-                            "text": agri_prompt(location, question)
-                        }
-                    ]
-                }
-            ]
-        }
+        time.sleep(0.8)
 
-        response = requests.post(
-            "https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent",
-            params={"key": api_key},
-            headers={"Content-Type": "application/json"},
-            json=payload,
-            timeout=30
-        )
+        # Configure Gemini SDK
+        genai.configure(api_key=api_key)
 
-    if response.status_code == 200:
-        data = response.json()
-        answer = data["candidates"][0]["content"]["parts"][0]["text"]
-        st.markdown(f"<div class='chat-ai'>{answer}</div>", unsafe_allow_html=True)
+        model = genai.GenerativeModel("gemini-pro")
 
-    
-    else:
-        st.error("❌ Gemini API Error")
-        st.write("Status code:", response.status_code)
-        st.write("Raw response:")
-        st.json(response.json())
+        prompt = agri_prompt(location, question)
+
+        response = model.generate_content(prompt)
+
+    # Show AI response
+    st.markdown(
+        f"<div class='chat-ai'>{response.text}</div>",
+        unsafe_allow_html=True
+    )
