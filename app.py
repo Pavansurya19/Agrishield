@@ -119,12 +119,16 @@ if ask and api_key and location and question:
         # Configure Gemini SDK
         genai.configure(api_key=api_key)
 
-        model = genai.GenerativeModel("gemini-pro")
+        model = genai.GenerativeModel("gemini-1.0-pro")
 
         prompt = agri_prompt(location, question)
 
         response = model.generate_content(prompt)
 
+        st.markdown(
+            f"<div class='chat-ai'>{response.text}</div>",
+            unsafe_allow_html=True
+    )
     # Show AI response
     st.markdown(
         f"<div class='chat-ai'>{response.text}</div>",
