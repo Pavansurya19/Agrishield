@@ -102,27 +102,38 @@ if ask and not location:
     st.stop()
 
 # ---------------- AI RESPONSE ----------------
+# ---------------- AI RESPONSE ----------------
 if ask and api_key and location and question:
 
     st.markdown(f"<div class='chat-user'>{question}</div>", unsafe_allow_html=True)
 
     with st.spinner("AgriShield is thinking..."):
-        time.sleep(1)
-
         payload = {
             "contents": [
-                {"parts": [{"text": agri_prompt(location, question)}]}
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "text": agri_prompt(location, question)
+                        }
+                    ]
+                }
             ]
         }
 
         response = requests.post(
-            f"{GEMINI_ENDPOINT}?key={api_key}",
+            "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent",
+            params={"key": api_key},
             headers={"Content-Type": "application/json"},
-            json=payload
+            json=payload,
+            timeout=30
         )
 
     if response.status_code == 200:
-        answer = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        data = response.json()
+        answer = data["candidates"][0]["content"]["parts"][0]["text"]
         st.markdown(f"<div class='chat-ai'>{answer}</div>", unsafe_allow_html=True)
+
     else:
-        st.error("Unable to fetch response. Please check your API key or quota.")
+        st.error("❌ Gemini API Error")
+        st.code(response.json())
