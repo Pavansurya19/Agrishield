@@ -134,6 +134,9 @@ if ask and api_key and location and question:
         answer = data["candidates"][0]["content"]["parts"][0]["text"]
         st.markdown(f"<div class='chat-ai'>{answer}</div>", unsafe_allow_html=True)
 
+    
     else:
-        st.error("❌ Gemini API Error")
-        st.code(response.json())
+    st.error("❌ Gemini API Error")
+    st.write("Status code:", response.status_code)
+    st.write("Raw response:")
+    st.json(response.json())
